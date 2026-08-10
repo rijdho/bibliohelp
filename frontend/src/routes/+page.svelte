@@ -1,8 +1,10 @@
 <script lang="ts">
   import type { VerifyResponse } from '@bibliohelp/shared';
+  import { detectDuplicates } from '@bibliohelp/shared';
   import BibliographyInput from '$lib/components/BibliographyInput.svelte';
   import ResultsTable from '$lib/components/ResultsTable.svelte';
   import { appConfig } from '$lib/config';
+  import { buildChunks, CHUNK_SIZE, MAX_TOTAL_REFS } from '$lib/verifyChunked';
   import { getHistory, addToHistory, removeFromHistory, clearHistory, type HistoryEntry } from '$lib/history';
   import { generateReport } from '$lib/report';
   import { t, tError, plural, dateLocale } from '$lib/i18n.svelte';
@@ -10,6 +12,8 @@
   let loading = $state(false);
   let results = $state<VerifyResponse | null>(null);
   let error = $state<string | null>(null);
+  let progressDone = $state(0);
+  let progressTotal = $state(0);
   let addingMore = $state(false);
   let showInstructions = $state(false);
   let history = $state<HistoryEntry[]>([]);
@@ -39,37 +43,65 @@
     };
   }
 
+  async function postVerify(text: string): Promise<VerifyResponse> {
+    // One retry on throttling / transient upstream failures, so a single 429
+    // from the edge rate limit doesn't abort a long chunked run.
+    for (let attempt = 0; ; attempt++) {
+      const res = await fetch(`${appConfig.apiUrl}/api/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      if (res.ok) return res.json();
+      if (attempt === 0 && [429, 502, 503, 504].includes(res.status)) {
+        await new Promise(r => setTimeout(r, 6000));
+        continue;
+      }
+      let msg = `Error ${res.status}`;
+      try {
+        msg = tError(await res.json(), res.status);
+      } catch {
+        // Response wasn't JSON (e.g. nginx 502 HTML page)
+      }
+      throw new Error(msg);
+    }
+  }
+
   async function handleVerify(text: string) {
     loading = true;
     error = null;
+    progressDone = 0;
+    progressTotal = 0;
 
     if (!addingMore) {
       results = null;
     }
 
     try {
-      const res = await fetch(`${appConfig.apiUrl}/api/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!res.ok) {
-        let msg = `Error ${res.status}`;
-        try {
-          msg = tError(await res.json(), res.status);
-        } catch {
-          // Response wasn't JSON (e.g. nginx 502 HTML page)
-        }
-        throw new Error(msg);
+      // Chunk client-side: one big request times out past ~15 uncached refs
+      // (60 s worker ceiling), so we send small sequential requests and merge.
+      const { chunks, total } = buildChunks(text);
+      const already = addingMore && results ? results.totalReferences : 0;
+      if (already + total > MAX_TOTAL_REFS) {
+        throw new Error(t('err.tooManyReferences', { count: already + total, max: MAX_TOTAL_REFS }));
       }
+      progressTotal = total;
 
-      const newResults: VerifyResponse = await res.json();
-
-      if (results && addingMore) {
-        results = mergeResults(results, newResults);
-      } else {
-        results = newResults;
+      let merged: VerifyResponse | null = addingMore ? results : null;
+      try {
+        for (const chunk of chunks) {
+          const chunkResults = await postVerify(chunk.text);
+          merged = merged ? mergeResults(merged, chunkResults) : chunkResults;
+          progressDone += chunk.count;
+          results = merged; // incremental render while later chunks verify
+        }
+      } finally {
+        // Per-request duplicate detection cannot see across chunks — recompute
+        // over the merged set (also on partial failure, for what did arrive).
+        if (merged) {
+          merged = { ...merged, duplicates: detectDuplicates(merged.results) };
+          results = merged;
+        }
       }
 
       addingMore = false;
@@ -82,6 +114,7 @@
       error = err instanceof Error ? err.message : t('error.verify');
     } finally {
       loading = false;
+      progressTotal = 0;
     }
   }
 
@@ -159,6 +192,25 @@
         </button>
       </div>
       <BibliographyInput onsubmit={handleVerify} {loading} />
+    </div>
+  {/if}
+
+  <!-- Chunked-verification progress -->
+  {#if loading && progressTotal > CHUNK_SIZE}
+    <div class="bg-surface-card border border-border rounded p-4 animate-fade-in space-y-2">
+      <div class="flex items-center gap-2.5 text-sm text-text-muted">
+        <svg class="w-4 h-4 animate-spin text-accent shrink-0" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+        {t('input.progress', { done: progressDone, total: progressTotal })}
+      </div>
+      <div class="h-1.5 bg-surface-warm rounded-full overflow-hidden">
+        <div
+          class="h-full bg-accent rounded-full transition-all duration-500"
+          style="width: {progressTotal > 0 ? Math.round((progressDone / progressTotal) * 100) : 0}%"
+        ></div>
+      </div>
     </div>
   {/if}
 

@@ -12,7 +12,7 @@ Replaces the original Docker version (Docker + MeiliSearch + Cloudflare Tunnel).
 - **Backend**: Hono + TypeScript → Cloudflare Worker
 - **Cache**: D1 (SQLite metadata) + Vectorize (semantic search) + Workers AI (embeddings)
 - **APIs**: CrossRef, OpenAlex, Open Library, OpenAIRE, Internet Archive, ISBNdb
-- **Rate Limiting**: an edge Cloudflare Rate Limiting (WAF) rule on `POST /api/verify` — recommended 10 req/min/IP — is the intended throttle for a public deployment. No code-level rate limiting (Workers are stateless). The rule lives in the Cloudflare dashboard, not the repo; see `_ref/cloudflare-infra.md` for the exact spec and how to verify/create it. Size caps (50 KB body, 30 refs) ARE in code.
+- **Rate Limiting**: an edge Cloudflare Rate Limiting (WAF) rule on `POST /api/verify` — recommended 10 req/min/IP — is the intended throttle for a public deployment. No code-level rate limiting (Workers are stateless). The rule lives in the Cloudflare dashboard, not the repo; see `_ref/cloudflare-infra.md` for the exact spec and how to verify/create it. Size caps (50 KB body, 30 refs) ARE in code — **per request**: since 2026-08-10 the web app chunks a big bibliography client-side into 4-ref requests (up to 100 refs per run, sequential, one 6 s retry on 429/5xx; `frontend/src/lib/verifyChunked.ts`). A fully cached 100-ref run can therefore issue up to 25 requests in well under a minute — if the 10 req/min WAF rule is active it will throttle those runs (the retry absorbs one hit); consider ~30 req/min when revisiting the rule.
 - **Design**: "violet" house style, shared with the landing page and with the sibling repos fair-repo-audit / coara-action-planner. Violet primary (#6d4aff), **self-hosted Inter** via `@fontsource-variable/inter` (NO external CDN — a Google Fonts `<link>` is blocked by the CSP `font-src 'self'` and would also break the privacy promise), three-verdict data palette (verified #1f9670 / partial #c08519 / likely-fake #c0463d). Light theme. Tokens live in `frontend/src/app.css` `@theme`.
 
 ## Domains
@@ -142,6 +142,22 @@ record the tool just flagged. Keep this gate if you touch citation rendering.
 ### Verification Pipeline
 
 Same as BiblioHelp: cache check → DOI → ISBN → title search → OpenAlex fallback → author boost → dedup → cache result.
+
+**Chunked verification (2026-08-10).** One request carrying ~15-20 uncached refs used
+to blow the route's 60 s ceiling (lock-step batches of 3 in `verifyAll`, each waiting
+for its slowest member, ~7 upstream calls per ref, 6-connection isolate cap). Two
+changes:
+
+- `verifyAll` now runs a sliding pool (order preserved by index) instead of lock-step
+  batches.
+- The web app splits the bibliography client-side with the SAME `splitReferences`
+  (moved to `@bibliohelp/shared`, worker re-exports it) into 4-ref requests, renders
+  results incrementally with a progress bar, and re-runs `detectDuplicates` (also
+  moved to shared) over the MERGED set — per-request duplicate detection cannot see
+  across chunks. Chunk re-splitting is only sound because every joined chunk carries
+  >= 2 blank-line-separated entries (single entries travel as the original text);
+  that invariant is pinned by `worker/src/parser/splitter.roundtrip.test.ts`. The
+  taskpane still sends one request (Word selections are small).
 
 ### Source Adapters
 

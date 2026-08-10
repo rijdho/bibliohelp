@@ -108,6 +108,7 @@ const strings: Record<Lang, Dict> = {
     'input.formats': 'APA · MLA · Chicago · Vancouver · Formato libre',
     'input.verifying': 'Verificando...',
     'input.verify': 'Verificar referencias',
+    'input.progress': 'Verificando… {done} de {total} referencias',
     // Status badge
     'status.verified': 'Verificado',
     'status.partial': 'Parcial',
@@ -226,6 +227,7 @@ const strings: Record<Lang, Dict> = {
     'input.formats': 'APA · MLA · Chicago · Vancouver · Free-form',
     'input.verifying': 'Verifying...',
     'input.verify': 'Verify references',
+    'input.progress': 'Verifying… {done} of {total} references',
     'status.verified': 'Verified',
     'status.partial': 'Partial',
     'status.notFound': 'Not found',
@@ -339,6 +341,7 @@ const strings: Record<Lang, Dict> = {
     'input.formats': 'APA · MLA · Chicago · Vancouver · Freies Format',
     'input.verifying': 'Wird geprüft...',
     'input.verify': 'Referenzen prüfen',
+    'input.progress': 'Wird geprüft … {done} von {total} Referenzen',
     'status.verified': 'Verifiziert',
     'status.partial': 'Teilweise',
     'status.notFound': 'Nicht gefunden',

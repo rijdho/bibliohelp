@@ -212,18 +212,25 @@ export async function verifyReference(ref: ParsedReference, env: Env): Promise<V
 }
 
 /**
- * Verify multiple references (with concurrency limit).
+ * Verify multiple references with a sliding concurrency pool: as soon as one
+ * reference finishes, the next one starts. The old lock-step batching made
+ * every batch wait for its slowest member, which is what pushed large requests
+ * past the route's 60 s ceiling. Result order is preserved by index.
  */
 export async function verifyAll(refs: ParsedReference[], env: Env): Promise<VerificationResult[]> {
   const CONCURRENCY = 3;
-  const results: VerificationResult[] = [];
+  const results: VerificationResult[] = new Array(refs.length);
+  let next = 0;
 
-  for (let i = 0; i < refs.length; i += CONCURRENCY) {
-    const batch = refs.slice(i, i + CONCURRENCY);
-    const batchResults = await Promise.all(batch.map(r => verifyReference(r, env)));
-    results.push(...batchResults);
+  async function drain(): Promise<void> {
+    while (true) {
+      const i = next++;
+      if (i >= refs.length) return;
+      results[i] = await verifyReference(refs[i], env);
+    }
   }
 
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, refs.length) }, drain));
   return results;
 }
 
