@@ -2,7 +2,7 @@
   import '@fontsource-variable/inter/wght.css'; // self-hosted Inter — no external CDN
   import '../../app.css';
   import { appConfig } from '$lib/config';
-  import { getLang, setLang } from '$lib/i18n.svelte';
+  import { getLang, toggleLang } from '$lib/i18n.svelte';
   let { children } = $props();
 </script>
 
@@ -17,12 +17,12 @@
     </svg>
     <span class="text-sm font-bold text-text">{appConfig.appName}</span>
     <button
-      onclick={() => setLang(getLang() === 'en' ? 'es' : 'en')}
+      onclick={toggleLang}
       class="ml-auto flex items-center gap-1 text-[11px] font-semibold text-text-muted hover:text-text border border-border rounded px-1.5 py-0.5 transition-colors"
-      title="English / Español"
-      aria-label="Toggle language"
+      title="Español / English / Deutsch"
+      aria-label="Change language"
     >
-      {getLang() === 'en' ? 'EN' : 'ES'}
+      {getLang().toUpperCase()}
     </button>
   </div>
   {@render children()}

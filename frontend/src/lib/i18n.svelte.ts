@@ -1,23 +1,30 @@
 /**
- * Dependency-free i18n for BiblioHelp (EN/ES).
+ * Dependency-free i18n for BiblioHelp (EN/ES/DE).
  * Module-level $state requires the `.svelte.ts` extension.
  *
  * Language is auto-detected from localStorage → navigator.language → 'en',
  * and persisted on change. `t()` reads the reactive `current`, so any markup
  * that calls it re-renders when the language changes.
+ *
+ * tests/i18n.test.mjs (repo root) pins the three key sets to be identical —
+ * adding a key to one locale without the other two fails the suite.
  */
 
-export type Lang = 'en' | 'es';
+export type Lang = 'en' | 'es' | 'de';
+
+export const LANGS: Lang[] = ['es', 'en', 'de'];
 
 const STORAGE_KEY = 'bh-lang';
 
 function detect(): Lang {
   if (typeof localStorage !== 'undefined') {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === 'en' || saved === 'es') return saved;
+    if (saved === 'en' || saved === 'es' || saved === 'de') return saved;
   }
-  if (typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('es')) {
-    return 'es';
+  if (typeof navigator !== 'undefined') {
+    const nav = navigator.language?.toLowerCase() ?? '';
+    if (nav.startsWith('es')) return 'es';
+    if (nav.startsWith('de')) return 'de';
   }
   return 'en';
 }
@@ -31,15 +38,17 @@ export function getLang(): Lang {
 export function setLang(l: Lang): void {
   current = l;
   if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, l);
+  if (typeof document !== 'undefined') document.documentElement.lang = l;
 }
 
+/** Cycle es → en → de → es. */
 export function toggleLang(): void {
-  setLang(current === 'en' ? 'es' : 'en');
+  setLang(LANGS[(LANGS.indexOf(current) + 1) % LANGS.length]);
 }
 
-/** 'es-CL' / 'en-US' for Intl date formatting. */
+/** 'es-CL' / 'en-US' / 'de-DE' for Intl date formatting. */
 export function dateLocale(): string {
-  return current === 'es' ? 'es-CL' : 'en-US';
+  return current === 'es' ? 'es-CL' : current === 'de' ? 'de-DE' : 'en-US';
 }
 
 type Dict = Record<string, string>;
@@ -146,6 +155,8 @@ const strings: Record<Lang, Dict> = {
     'err.tooManyReferences': 'Demasiadas referencias ({count}). Máximo {max} por consulta.',
     'err.timeout': 'La verificación tardó demasiado. Intenta con menos referencias.',
     'err.verifyFailed': 'Error al verificar',
+    'err.badRequest': 'Solicitud inválida',
+    'err.internal': 'Error interno del servidor',
     // Taskpane
     'tp.officeNotReady': 'Office.js no está listo. Asegúrate de abrir esto desde Word.',
     'tp.noSelection': 'No hay texto seleccionado en el documento.',
@@ -259,6 +270,8 @@ const strings: Record<Lang, Dict> = {
     'err.tooManyReferences': 'Too many references ({count}). Maximum {max} per query.',
     'err.timeout': 'Verification took too long. Try with fewer references.',
     'err.verifyFailed': 'Verification failed.',
+    'err.badRequest': 'Invalid request',
+    'err.internal': 'Internal server error',
     'tp.officeNotReady': 'Office.js is not ready. Make sure you open this from Word.',
     'tp.noSelection': 'No text is selected in the document.',
     'tp.readError': 'Error reading the selection',
@@ -278,6 +291,119 @@ const strings: Record<Lang, Dict> = {
     'report.statusPartial': 'Partial',
     'report.statusNotFound': 'Not found',
     'report.fileName': 'verification',
+  },
+  de: {
+    'nav.tagline': 'Referenzprüfer',
+    'page.titleSuffix': 'Prüfung bibliografischer Referenzen',
+    'hero.title': 'Prüfe dein Literaturverzeichnis',
+    'hero.desc1': 'Füge deine Referenzen ein, und',
+    'hero.desc2': 'prüft, ob sie in akademischen Datenbanken wie',
+    'hero.desc3': ' und weiteren zu finden sind. Zusätzlich erhältst du Vorschläge zur korrekten Formatierung nach APA, MLA, Chicago oder Vancouver.',
+    'addMore.prompt': 'Weitere Referenzen zur Prüfung hinzufügen:',
+    'common.cancel': 'Abbrechen',
+    'common.copy': 'Kopieren',
+    'common.copied': 'Kopiert',
+    'results.title': 'Ergebnisse',
+    'actions.addRefs': 'Referenzen hinzufügen',
+    'actions.download': 'Bericht herunterladen',
+    'actions.newVerification': 'Neue Prüfung',
+    'error.verify': 'Fehler beim Prüfen der Referenzen',
+    'history.recent': 'Letzte Prüfungen',
+    'history.clear': 'Verlauf löschen',
+    'history.delete': 'Entfernen',
+    'history.ref': 'Ref.|Refs.',
+    'history.verified': 'verifiziert|verifiziert',
+    'how.title': 'So funktioniert es',
+    'how.step1': 'Füge dein komplettes Literaturverzeichnis ein — nummeriert, mit Spiegelstrichen oder zeilenweise',
+    'how.step2': 'Wir suchen jede Referenz in verifizierten akademischen Datenbanken',
+    'how.step3': 'Du erhältst einen detaillierten Bericht und fertig formatierte Zitate',
+    'word.title': 'Microsoft-Word-Add-in',
+    'word.desc1': 'Prüfe deine Referenzen direkt aus Word. Markiere den Text in deinem Dokument, und',
+    'word.desc2': 'analysiert ihn, ohne den Editor zu verlassen.',
+    'word.download': 'manifest.xml herunterladen',
+    'word.toggleShow': 'Installationsanleitung anzeigen',
+    'word.toggleHide': 'Anleitung ausblenden',
+    'word.howTitle': 'Installation des Add-ins (Sideload):',
+    'word.step1pre': 'Lade die Datei',
+    'word.step1post': 'herunter',
+    'word.step2pre': 'Öffne Word und gehe zu',
+    'word.step2menu': 'Einfügen → Add-Ins → Meine Add-Ins',
+    'word.step3pre': 'Wähle',
+    'word.step3strong': 'Mein Add-In hochladen',
+    'word.step3post': '(unten links)',
+    'word.step4pre': 'Lade die heruntergeladene Datei',
+    'word.step4post': 'hoch',
+    'word.step5post': 'erscheint in der Word-Seitenleiste',
+    'input.placeholder': 'Füge hier dein komplettes Literaturverzeichnis ein...\n\nJede Referenz kann nummeriert, mit Spiegelstrichen, durch Leerzeilen getrennt oder zeilenweise stehen.',
+    'input.loadSample': 'Beispiel laden',
+    'input.formats': 'APA · MLA · Chicago · Vancouver · Freies Format',
+    'input.verifying': 'Wird geprüft...',
+    'input.verify': 'Referenzen prüfen',
+    'status.verified': 'Verifiziert',
+    'status.partial': 'Teilweise',
+    'status.notFound': 'Nicht gefunden',
+    'status.likelyFake': 'Vermutlich erfunden',
+    'cite.title': 'Zitiervorschläge',
+    'cite.ref': 'Referenz|Referenzen',
+    'cite.copyAll': 'Alles kopieren',
+    'tpcite.title': 'Zitiervorschlag',
+    'tpcite.insert': 'In Word einfügen',
+    'tpcite.inserted': 'Eingefügt',
+    'summary.total': 'Gesamt',
+    'summary.verified': 'Verifiziert',
+    'summary.partial': 'Teilweise',
+    'summary.notFound': 'Nicht gefunden',
+    'dup.title': 'Mögliche Duplikate erkannt',
+    'dup.refsLabel': 'Referenzen',
+    'dup.sameSource': 'scheinen dieselbe Quelle zu sein',
+    'dup.similarity': 'Ähnlichkeit',
+    'fields.title': 'Titel',
+    'fields.authors': 'Autoren',
+    'fields.year': 'Jahr',
+    'matches.title': 'Treffer',
+    'matches.suggestion': 'Vorschlag:',
+    'matches.viewSource': 'Quelle ansehen',
+    'msg.identifierNoMatch': 'Ein Identifikator wurde angegeben, aber in keiner Datenbank wurde ein passender Eintrag gefunden.',
+    'msg.noMatchFabricated': 'In keiner akademischen Datenbank wurde ein passender Eintrag gefunden. Diese Referenz könnte erfunden sein.',
+    'msg.verifiedVia': 'Verifiziert über {identifier}.',
+    'msg.identifierMismatch': 'Der {identifier} verweist auf ein anderes Werk: „{matchedTitle}“. Prüfe die Referenz — sie könnte fehlerhaft oder erfunden sein.',
+    'msg.highConfidence': 'Treffer mit hoher Konfidenz (Ähnlichkeit: {similarity} %).',
+    'msg.yearConflict': 'Der Titel stimmt überein (Ähnlichkeit: {similarity} %), aber die Quelle ist auf {matchYear} datiert, nicht auf {refYear}. Möglicherweise eine andere Ausgabe oder eine neu registrierte Kopie — bitte manuell prüfen.',
+    'msg.possibleMatch': 'Möglicher Treffer (Ähnlichkeit: {similarity} %). Titel oder Autor können leicht abweichen.',
+    'msg.weakMatch': 'Schwacher Treffer (Ähnlichkeit: {similarity} %). Bitte manuell prüfen.',
+    'msg.veryLowSimilarity': 'Es wurden nur Ergebnisse mit sehr geringer Ähnlichkeit gefunden. Diese Referenz kann erhebliche Fehler enthalten.',
+    'sug.year': 'Das Jahr in deiner Referenz ist {userValue}, die gefundene Quelle nennt jedoch {suggestedValue}',
+    'sug.doiFound': 'Für diese Referenz wurde ein DOI gefunden: {suggestedValue}',
+    'sug.doiMismatch': 'Der DOI in deiner Referenz ({userValue}) weicht vom gefundenen ab ({suggestedValue})',
+    'sug.titleDiffers': 'Der gefundene Titel weicht vom eingegebenen ab',
+    'err.bodyTooLarge': 'Der Text ist zu lang (maximal {maxKb} KB)',
+    'err.invalidJson': 'Ungültiges JSON',
+    'err.noText': 'Kein Text übermittelt',
+    'err.noReferences': 'Aus dem Text konnten keine Referenzen extrahiert werden',
+    'err.tooManyReferences': 'Zu viele Referenzen ({count}). Maximal {max} pro Anfrage.',
+    'err.timeout': 'Die Prüfung hat zu lange gedauert. Versuche es mit weniger Referenzen.',
+    'err.verifyFailed': 'Prüfung fehlgeschlagen.',
+    'err.badRequest': 'Ungültige Anfrage',
+    'err.internal': 'Interner Serverfehler',
+    'tp.officeNotReady': 'Office.js ist nicht bereit. Stelle sicher, dass du dies aus Word öffnest.',
+    'tp.noSelection': 'Im Dokument ist kein Text markiert.',
+    'tp.readError': 'Fehler beim Lesen der Auswahl',
+    'tp.verifyError': 'Fehler bei der Prüfung',
+    'tp.instruction': 'Markiere die Referenzen in deinem Word-Dokument und klicke auf die Schaltfläche, um sie zu prüfen.',
+    'tp.readAndVerify': 'Auswahl lesen und prüfen',
+    'tp.partialShort': 'Teilw.',
+    'tp.noShort': 'Nein',
+    'report.title': 'Bericht zur bibliografischen Prüfung',
+    'report.generatedBy': 'Erstellt von',
+    'report.on': 'am',
+    'report.detail': 'Detail je Referenz',
+    'report.bestMatch': 'Bester Treffer',
+    'report.duplicates': 'Mögliche Duplikate',
+    'report.footer': 'Automatische Prüfung bibliografischer Referenzen',
+    'report.statusVerified': 'Verifiziert',
+    'report.statusPartial': 'Teilweise',
+    'report.statusNotFound': 'Nicht gefunden',
+    'report.fileName': 'pruefbericht',
   },
 };
 
