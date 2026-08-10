@@ -8,8 +8,8 @@ Disponible en **español, inglés y alemán** (autodetectado, conmutable).
 
 ## Demo
 
-- **App**: https://bibliohelp.rijdho.org · espejo en https://rijdho.github.io/bibliohelpc/app/
-- **Presentación**: https://rijdho.github.io/bibliohelpc/
+- **App**: https://bibliohelp.rijdho.org · espejo en https://rijdho.github.io/bibliohelp/app/
+- **Presentación**: https://rijdho.github.io/bibliohelp/
 
 Ambos frontends (Cloudflare Pages y GitHub Pages) son el mismo cliente SvelteKit y usan el mismo Worker de backend.
 

@@ -22,15 +22,16 @@ Replaces the original Docker version (Docker + MeiliSearch + Cloudflare Tunnel).
 | Frontend | `https://bibliohelp.rijdho.org` | Cloudflare Pages (custom domain) |
 | Frontend (alt) | `https://bibliohelpc.pages.dev` | Cloudflare Pages (default) |
 | Worker API | `https://api.bibliohelp.rijdho.org` | Cloudflare Worker (custom domain; workers.dev route disabled) |
-| Landing | `https://rijdho.github.io/bibliohelpc/` | GitHub Pages (from `docs/`) |
-| Frontend (GitHub mirror) | `https://rijdho.github.io/bibliohelpc/app/` | GitHub Pages (`docs/app/`), same Worker backend |
+| Landing | `https://rijdho.github.io/bibliohelp/` | GitHub Pages (from `docs/`) |
+| Frontend (GitHub mirror) | `https://rijdho.github.io/bibliohelp/app/` | GitHub Pages (`docs/app/`), same Worker backend |
 
 The frontend at `bibliohelp.rijdho.org` is a CNAME to `bibliohelpc.pages.dev`, configured as a custom domain in Cloudflare Pages. The GitHub Pages copies are a second, independent deployment of the *same* SvelteKit app (see "GitHub Pages" below); both hit the same Cloudflare Worker API.
 
 ## Workspace Structure
 
 ```
-bibliohelpc/
+bibliohelp/                          # repo renamed from bibliohelpc on 2026-08-10;
+│                                    # Cloudflare resource names keep the old c
 ├── package.json                     # Workspace root
 ├── tsconfig.base.json
 ├── .gitignore
@@ -80,7 +81,7 @@ cd frontend \
 
 # Deploy Frontend to GitHub Pages (sub-path build → docs/app; auto-deploys on push)
 cd frontend \
-  && BASE_PATH=/bibliohelpc/app \
+  && BASE_PATH=/bibliohelp/app \
      VITE_APP_NAME=BiblioHelp VITE_API_URL=https://api.bibliohelp.rijdho.org \
      VITE_FOOTER_HTML='by <a href="https://rijdho.github.io" target="_blank">@rijdho</a>' \
      npm run build \
@@ -92,18 +93,18 @@ cd frontend \
 Regenerate `docs/404.html` after every GitHub app rebuild (run from repo root):
 
 ```bash
-node -e 'const f=require("fs");const s=f.readFileSync("docs/app/index.html","utf8");const g="<script>(function(){if(location.pathname.indexOf(\"/bibliohelpc/app/\")!==0)location.replace(\"/bibliohelpc/\");})();<\/script>";f.writeFileSync("docs/404.html",s.replace("<head>","<head>\n"+g));'
+node -e 'const f=require("fs");const s=f.readFileSync("docs/app/index.html","utf8");const g="<script>(function(){if(location.pathname.indexOf(\"/bibliohelp/app/\")!==0)location.replace(\"/bibliohelp/\");})();<\/script>";f.writeFileSync("docs/404.html",s.replace("<head>","<head>\n"+g));'
 ```
 
 ## GitHub Pages (landing + app mirror)
 
-`docs/` is published to `https://rijdho.github.io/bibliohelpc/` by **GitHub Actions**
+`docs/` is published to `https://rijdho.github.io/bibliohelp/` by **GitHub Actions**
 (`.github/workflows/pages.yml`), NOT the legacy Jekyll builder — Jekyll strips
 SvelteKit's underscore-prefixed `_app/` directory and 404s the whole app.
 
 - `docs/index.html` + `docs/style.css` + `docs/fonts/` — the standalone landing
   (violet house style, ES/EN/DE). Self-hosted Inter under `docs/fonts/`.
-- `docs/app/` — the SvelteKit app built with `BASE_PATH=/bibliohelpc/app`
+- `docs/app/` — the SvelteKit app built with `BASE_PATH=/bibliohelp/app`
   (SvelteKit `paths.base`, wired via the `BASE_PATH` env in `svelte.config.js`;
   empty for the Cloudflare build). Uses `{base}` for internal links.
 - The app calls the same `api.bibliohelp.rijdho.org` Worker. The Worker CORS
@@ -113,7 +114,7 @@ SvelteKit's underscore-prefixed `_app/` directory and 404s the whole app.
   verifying in a browser — a stale CSS/JS bundle will otherwise look unchanged.
 - **SPA fallback**: GitHub honors only a `404.html` at the Pages *root*, so a
   per-folder `docs/app/404.html` does nothing (that's why `/app/taskpane` used to
-  404). `docs/404.html` is the app SPA shell + a guard: `/bibliohelpc/app/*` URLs
+  404). `docs/404.html` is the app SPA shell + a guard: `/bibliohelp/app/*` URLs
   are kept (the SvelteKit router resolves them), anything else redirects to the
   landing. Regenerate it whenever `docs/app/` is rebuilt (command above).
 
