@@ -3,13 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- GitHub Pages cannot send response headers, so the CSP travels in the
+         document itself. frame-ancestors is omitted: the spec ignores it in a
+         meta tag (framing policy only exists where headers exist — the
+         Cloudflare surfaces). Keep in sync with frontend/static/_headers. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://appsforoffice.microsoft.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.bibliohelp.rijdho.org; img-src 'self' data:; font-src 'self' data:"
+    />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
     <title>BiblioHelp</title>
-    <link href="/bibliohelp/app/_app/immutable/entry/start.C027Qx0R.js" rel="modulepreload">
-		<link href="/bibliohelp/app/_app/immutable/chunks/BdqHbIhU.js" rel="modulepreload">
+    <link href="/bibliohelp/app/_app/immutable/entry/start.Dl5DZVdi.js" rel="modulepreload">
+		<link href="/bibliohelp/app/_app/immutable/chunks/CoXdj8Gc.js" rel="modulepreload">
 		<link href="/bibliohelp/app/_app/immutable/chunks/FGRB0CxW.js" rel="modulepreload">
-		<link href="/bibliohelp/app/_app/immutable/chunks/BVBxsXBj.js" rel="modulepreload">
+		<link href="/bibliohelp/app/_app/immutable/chunks/CzA-IHyg.js" rel="modulepreload">
 		<link href="/bibliohelp/app/_app/immutable/chunks/2sJYnWEU.js" rel="modulepreload">
-		<link href="/bibliohelp/app/_app/immutable/entry/app.kuKEF3vV.js" rel="modulepreload">
+		<link href="/bibliohelp/app/_app/immutable/entry/app.B_YaQSCT.js" rel="modulepreload">
 		<link href="/bibliohelp/app/_app/immutable/chunks/Dks20BUA.js" rel="modulepreload">
 		<link href="/bibliohelp/app/_app/immutable/chunks/DXkrftk2.js" rel="modulepreload">
 		<link href="/bibliohelp/app/_app/immutable/chunks/Dh49dvee.js" rel="modulepreload">
@@ -19,7 +28,7 @@
     <div style="display: contents">
 			<script>
 				{
-					__sveltekit_k7ia4x = {
+					__sveltekit_1rhv2fm = {
 						base: "/bibliohelp/app",
 						assets: "/bibliohelp/app"
 					};
@@ -27,8 +36,8 @@
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("/bibliohelp/app/_app/immutable/entry/start.C027Qx0R.js"),
-						import("/bibliohelp/app/_app/immutable/entry/app.kuKEF3vV.js")
+						import("/bibliohelp/app/_app/immutable/entry/start.Dl5DZVdi.js"),
+						import("/bibliohelp/app/_app/immutable/entry/app.B_YaQSCT.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element);
 					});

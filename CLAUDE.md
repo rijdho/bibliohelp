@@ -17,15 +17,28 @@ Replaces the original Docker version (Docker + MeiliSearch + Cloudflare Tunnel).
 
 ## Domains
 
+**Decided 2026-08-11: the canonical frontend is GitHub Pages, permanently.** The user's
+words: "siempre lo serviré desde rijdho.github.io/bibliohelp". A worker-assets migration
+(app served by the worker itself) was built, verified working, and reverted the same day
+when this decision landed — the working config is in git history at `1a2fe59` if the
+question ever reopens.
+
 | Service | URL | Platform |
 |---------|-----|----------|
-| Frontend | `https://bibliohelp.rijdho.org` | Cloudflare Pages (custom domain) |
-| Frontend (alt) | `https://bibliohelpc.pages.dev` | Cloudflare Pages (default) |
-| Worker API | `https://api.bibliohelp.rijdho.org` | Cloudflare Worker (custom domain; workers.dev route disabled) |
+| **App (canonical)** | `https://rijdho.github.io/bibliohelp/app/` | GitHub Pages (`docs/app/`) |
 | Landing | `https://rijdho.github.io/bibliohelp/` | GitHub Pages (from `docs/`) |
-| Frontend (GitHub mirror) | `https://rijdho.github.io/bibliohelp/app/` | GitHub Pages (`docs/app/`), same Worker backend |
+| Worker API | `https://api.bibliohelp.rijdho.org` | Cloudflare Worker (custom domain; workers.dev route disabled) |
+| App (copy) | `https://bibliohelp.rijdho.org` | Cloudflare Pages (custom domain, CNAME to `bibliohelpc.pages.dev`) |
 
-The frontend at `bibliohelp.rijdho.org` is a CNAME to `bibliohelpc.pages.dev`, configured as a custom domain in Cloudflare Pages. The GitHub Pages copies are a second, independent deployment of the *same* SvelteKit app (see "GitHub Pages" below); both hit the same Cloudflare Worker API.
+The Cloudflare Pages copy stays alive because the **Word add-in depends on it**: the
+manifest and the `/api/manifest` route point taskpane + icons at
+`bibliohelp.rijdho.org`, and installed add-ins keep those URLs. Retiring it requires
+re-pointing the manifest (users must re-sideload) — decide that separately.
+
+GitHub Pages cannot send response headers, so the app carries its CSP as a meta tag in
+`frontend/src/app.html` (everything except `frame-ancestors`, which the spec ignores in
+meta — framing policy only exists on the Cloudflare surfaces). Keep it in sync with
+`frontend/static/_headers`.
 
 ## Workspace Structure
 

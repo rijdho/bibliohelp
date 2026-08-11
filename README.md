@@ -8,10 +8,12 @@ Disponible en **español, inglés y alemán** (autodetectado, conmutable).
 
 ## Demo
 
-- **App**: https://bibliohelp.rijdho.org · espejo en https://rijdho.github.io/bibliohelp/app/
+- **App**: https://rijdho.github.io/bibliohelp/app/
 - **Presentación**: https://rijdho.github.io/bibliohelp/
 
-Ambos frontends (Cloudflare Pages y GitHub Pages) son el mismo cliente SvelteKit y usan el mismo Worker de backend.
+La app se sirve desde GitHub Pages; el backend es un Cloudflare Worker
+(`api.bibliohelp.rijdho.org`). `https://bibliohelp.rijdho.org` sirve una copia de la misma
+app y aloja el add-in de Word.
 
 ## Stack
 
