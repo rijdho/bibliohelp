@@ -14,10 +14,16 @@ export function generateSuggestions(
   if (!bestMatch || bestMatch.similarity < 0.60) return [];
   if (resultMessageCode === 'msg.yearConflict' || resultMessageCode === 'msg.identifierMismatch') return [];
 
+  // Below this similarity the best match may simply be a DIFFERENT work, so
+  // adopting its year or DOI would push the user's data toward an unrelated
+  // record (a 0.65 match on a 1958 gardening guide once produced a confident
+  // "Suggestion: 1958" for a web-development reference).
+  const sameWork = bestMatch.similarity >= 0.80;
+
   const suggestions: FieldSuggestion[] = [];
 
   // Year mismatch
-  if (ref.year && bestMatch.year && ref.year !== bestMatch.year) {
+  if (sameWork && ref.year && bestMatch.year && ref.year !== bestMatch.year) {
     suggestions.push({
       field: 'year',
       userValue: String(ref.year),
@@ -29,7 +35,7 @@ export function generateSuggestions(
   }
 
   // DOI: user doesn't have one but match does
-  if (!ref.doi && bestMatch.doi) {
+  if (sameWork && !ref.doi && bestMatch.doi) {
     suggestions.push({
       field: 'doi',
       userValue: '',
@@ -41,7 +47,7 @@ export function generateSuggestions(
   }
 
   // DOI mismatch (user has different DOI)
-  if (ref.doi && bestMatch.doi && ref.doi !== bestMatch.doi) {
+  if (sameWork && ref.doi && bestMatch.doi && ref.doi !== bestMatch.doi) {
     suggestions.push({
       field: 'doi',
       userValue: ref.doi,
