@@ -5,8 +5,25 @@ compatibility_flags = ["nodejs_compat"]
 
 workers_dev = false
 routes = [
-  { pattern = "api.bibliohelp.rijdho.org", custom_domain = true }
+  { pattern = "api.bibliohelp.rijdho.org", custom_domain = true },
+  # bibliohelp.rijdho.org joins as a worker custom domain once its Pages CNAME
+  # is deleted from the rijdho.org zone (wrangler's OAuth token has no zone
+  # scope — same limitation as the WAF rule, see _ref/cloudflare-infra.md).
+  # Until then this stays commented or `wrangler deploy` fails on triggers.
+  # { pattern = "bibliohelp.rijdho.org", custom_domain = true }
 ]
+
+# The worker also serves the SvelteKit app (built with base '' and
+# VITE_API_URL=https://api.bibliohelp.rijdho.org) — one deploy for app + API,
+# replacing the Cloudflare Pages project. Build the frontend BEFORE deploying.
+# /api/* always runs the worker; everything else is served from assets, with
+# the SPA shell for unmatched paths (the app has no prerendered pages) and the
+# security headers coming from the build's _headers file.
+[assets]
+directory = "../frontend/build"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
 
 [vars]
 APP_NAME = "BiblioHelp"
