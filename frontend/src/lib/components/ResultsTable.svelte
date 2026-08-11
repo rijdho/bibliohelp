@@ -23,6 +23,15 @@
     catch { return false; }
   }
 
+  // Family convention: items that carry a verdict take a 3px LEFT border in
+  // the verdict's data color (fair-repo-audit .chk / landing .vc).
+  const edgeVar: Record<string, string> = {
+    verified: 'var(--ok)',
+    partial: 'var(--warn)',
+    not_found: 'var(--bad)',
+    likely_fake: 'var(--bad)',
+  };
+
   const summary = $derived({
     total: data.totalReferences,
     verified: data.verified,
@@ -34,19 +43,19 @@
 <div class="space-y-5 animate-fade-in">
   <!-- Summary cards -->
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 stagger">
-    <div class="bg-surface-card border border-border rounded p-3.5 text-center animate-fade-in-up" style="opacity:0">
+    <div class="bg-surface-card border border-border rounded-lg shadow-card p-3.5 text-center animate-fade-in-up" style="opacity:0">
       <div class="font-display text-2xl font-bold text-text">{summary.total}</div>
       <div class="text-[11px] text-text-muted mt-0.5 uppercase tracking-wider">{t('summary.total')}</div>
     </div>
-    <div class="bg-verified-bg border border-verified/20 rounded p-3.5 text-center animate-fade-in-up" style="opacity:0">
+    <div class="bg-verified-bg border border-verified/20 rounded-lg p-3.5 text-center animate-fade-in-up" style="opacity:0">
       <div class="font-display text-2xl font-bold text-verified">{summary.verified}</div>
       <div class="text-[11px] text-verified/70 mt-0.5 uppercase tracking-wider">{t('summary.verified')}</div>
     </div>
-    <div class="bg-partial-bg border border-partial/20 rounded p-3.5 text-center animate-fade-in-up" style="opacity:0">
+    <div class="bg-partial-bg border border-partial/20 rounded-lg p-3.5 text-center animate-fade-in-up" style="opacity:0">
       <div class="font-display text-2xl font-bold text-partial">{summary.partial}</div>
       <div class="text-[11px] text-partial/70 mt-0.5 uppercase tracking-wider">{t('summary.partial')}</div>
     </div>
-    <div class="bg-fake-bg border border-fake/20 rounded p-3.5 text-center animate-fade-in-up" style="opacity:0">
+    <div class="bg-fake-bg border border-fake/20 rounded-lg p-3.5 text-center animate-fade-in-up" style="opacity:0">
       <div class="font-display text-2xl font-bold text-fake">{summary.notFound}</div>
       <div class="text-[11px] text-fake/70 mt-0.5 uppercase tracking-wider">{t('summary.notFound')}</div>
     </div>
@@ -54,7 +63,7 @@
 
   <!-- Duplicate warning -->
   {#if data.duplicates && data.duplicates.length > 0}
-    <div class="bg-partial-bg border border-partial/20 rounded p-3.5 flex items-start gap-2.5 text-sm text-partial">
+    <div class="bg-partial-bg border border-partial/20 rounded-lg p-3.5 flex items-start gap-2.5 text-sm text-partial">
       <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
       </svg>
@@ -76,7 +85,7 @@
   <div class="space-y-2">
     {#each data.results as result, i}
       {@const ref = result.reference}
-      <div class="bg-surface-card border border-border rounded overflow-hidden hover:border-accent/30 transition-colors">
+      <div class="bg-surface-card border border-border rounded overflow-hidden hover:border-accent/30 transition-colors status-edge" style="--edge: {edgeVar[result.status]}">
         <!-- Main row -->
         <button
           class="w-full text-left px-4 py-3.5 flex items-start gap-3 cursor-pointer"

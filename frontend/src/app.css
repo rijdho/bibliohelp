@@ -1,32 +1,78 @@
 @import 'tailwindcss';
 
-@theme {
-  /* "violet" house style — shared with the landing page and with
-     fair-repo-audit / coara-action-planner. Chrome tokens are violet; the
-     verdict tokens are the same three-state data palette the landing uses. */
-  --color-primary: #6d4aff;
-  --color-primary-light: #8b7bff;
-  --color-accent: #6d4aff;
-  --color-accent-light: #8b7bff;
-  --color-surface: #f7f6fb;
-  --color-surface-card: #ffffff;
-  --color-surface-warm: #f1f0f7;
-  --color-text: #17151f;
-  --color-text-muted: #52505e;
-  --color-text-light: #8a8895;
-  --color-border: #e5e3ef;
-  --color-border-light: #edecf5;
-  --color-verified: #1f9670;
-  --color-verified-bg: #e4f4ee;
-  --color-partial: #c08519;
-  --color-partial-bg: #f7efdc;
-  --color-warning: #c08519;
-  --color-warning-bg: #f7efdc;
-  --color-fake: #c0463d;
-  --color-fake-bg: #f8e7e4;
+/* "violet" house style — the SAME token set as the landing (docs/style.css)
+   and the sibling repos fair-repo-audit / coara-action-planner. Chrome tokens
+   are violet; the verdict tokens are BiblioHelp's own three-state data palette.
+   Light + dark: an explicit data-theme stamp beats prefers-color-scheme in
+   both directions, exactly like the landing. */
+:root {
+  --paper: #f7f6fb; --surface: #fff; --surface-2: #f1f0f7; --surface-3: #eae8f3;
+  --ink: #17151f; --ink-2: #52505e; --muted: #8a8895;
+  --hairline: #e5e3ef; --hairline-2: #edecf5;
+  --brand: #6d4aff; --brand-2: #8b7bff; --brand-soft: #eeebff;
+  --shadow: 0 1px 2px rgba(23, 21, 31, .06), 0 8px 24px rgba(23, 21, 31, .05);
+  --ok: #1f9670; --ok-soft: #e4f4ee; --warn: #c08519; --warn-soft: #f7efdc;
+  --bad: #c0463d; --bad-soft: #f8e7e4;
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --paper: #121118; --surface: #1b1a22; --surface-2: #232230; --surface-3: #2c2a3a;
+  --ink: #eceaf3; --ink-2: #a9a7b5; --muted: #8a8895;
+  --hairline: #2c2a38; --hairline-2: #26242f;
+  --brand: #8b7bff; --brand-2: #a29aff; --brand-soft: #221f35;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+  --ok: #2aa87a; --ok-soft: #16281f; --warn: #d99a2b; --warn-soft: #2a2213;
+  --bad: #d1544b; --bad-soft: #2a1715;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #121118; --surface: #1b1a22; --surface-2: #232230; --surface-3: #2c2a3a;
+    --ink: #eceaf3; --ink-2: #a9a7b5; --muted: #8a8895;
+    --hairline: #2c2a38; --hairline-2: #26242f;
+    --brand: #8b7bff; --brand-2: #a29aff; --brand-soft: #221f35;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+    --ok: #2aa87a; --ok-soft: #16281f; --warn: #d99a2b; --warn-soft: #2a2213;
+    --bad: #d1544b; --bad-soft: #2a1715;
+    color-scheme: dark;
+  }
+}
+
+/* Tailwind tokens resolve to the runtime vars above (inline keeps the var()
+   reference in the generated utilities), so every existing bg-/text-/border-
+   class flips with the theme without dark: variants. */
+@theme inline {
+  --color-primary: var(--brand);
+  --color-primary-light: var(--brand-2);
+  --color-accent: var(--brand);
+  --color-accent-light: var(--brand-2);
+  --color-accent-soft: var(--brand-soft);
+  --color-surface: var(--paper);
+  --color-surface-card: var(--surface);
+  --color-surface-warm: var(--surface-2);
+  --color-text: var(--ink);
+  --color-text-muted: var(--ink-2);
+  --color-text-light: var(--muted);
+  --color-border: var(--hairline);
+  --color-border-light: var(--hairline-2);
+  --color-verified: var(--ok);
+  --color-verified-bg: var(--ok-soft);
+  --color-partial: var(--warn);
+  --color-partial-bg: var(--warn-soft);
+  --color-warning: var(--warn);
+  --color-warning-bg: var(--warn-soft);
+  --color-fake: var(--bad);
+  --color-fake-bg: var(--bad-soft);
+  --shadow-card: var(--shadow);
   --font-display: 'Inter Variable', 'Inter', 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+}
+
+/* Family radii: 14px cards (rounded-lg), 9px controls (bare rounded). */
+@theme {
+  --radius: 9px;
+  --radius-lg: 14px;
 }
 
 /* House display treatment: heavy, tight headings like the landing. */
@@ -36,10 +82,27 @@ h1, h2, h3, .font-display {
 }
 
 body {
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans);
+  transition: background .25s, color .25s;
 }
+
+::selection { background: var(--brand); color: #fff; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 5px; }
+
+/* Landing brand glyph: violet→magenta gradient chip with a soft brand glow. */
+.glyph-grad {
+  background: linear-gradient(135deg, var(--brand), color-mix(in oklab, var(--brand), #db2777 52%));
+  box-shadow: 0 4px 14px color-mix(in oklab, var(--brand), transparent 62%);
+}
+
+/* Landing .btn-primary glow. */
+.btn-glow { box-shadow: 0 6px 20px color-mix(in oklab, var(--brand), transparent 66%); }
+
+/* Family status accent: 3px LEFT border on items that carry a verdict
+   (fair-repo-audit .chk / landing .vc). Set --edge per item. */
+.status-edge { border-left: 3px solid var(--edge, transparent); }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -81,3 +144,7 @@ body {
 .stagger > :nth-child(2) { animation-delay: 60ms; }
 .stagger > :nth-child(3) { animation-delay: 120ms; }
 .stagger > :nth-child(4) { animation-delay: 180ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

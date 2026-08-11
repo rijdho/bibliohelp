@@ -32,6 +32,14 @@
     tryInit();
   });
 
+  // Family convention: verdict items take a 3px left border in the verdict color.
+  const edgeVar: Record<string, string> = {
+    verified: 'var(--ok)',
+    partial: 'var(--warn)',
+    not_found: 'var(--bad)',
+    likely_fake: 'var(--bad)',
+  };
+
   function toggleExpand(i: number) {
     expandedIndex = expandedIndex === i ? null : i;
   }
@@ -134,7 +142,7 @@
     <button
       onclick={readSelection}
       disabled={loading}
-      class="w-full py-2.5 px-4 rounded text-sm font-medium text-white bg-primary hover:bg-primary-light disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+      class="w-full py-2.5 px-4 rounded text-sm font-mono font-medium text-white bg-primary btn-glow hover:bg-primary-light disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
     >
       {#if loading}
         <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -195,7 +203,7 @@
       <!-- Reference list -->
       <div class="space-y-1.5">
         {#each results.results as item, i}
-          <div class="bg-surface-card border border-border rounded overflow-hidden hover:border-accent/30 transition-colors">
+          <div class="bg-surface-card border border-border rounded overflow-hidden hover:border-accent/30 transition-colors status-edge" style="--edge: {edgeVar[item.status]}">
             <!-- Header row -->
             <button
               class="w-full text-left px-3 py-2.5 flex items-start gap-2 cursor-pointer"

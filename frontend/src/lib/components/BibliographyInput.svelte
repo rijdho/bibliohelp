@@ -39,7 +39,7 @@
       <button
         type="button"
         onclick={loadSample}
-        class="absolute bottom-3 right-3 text-xs text-accent hover:text-accent-light font-medium px-2.5 py-1 rounded bg-surface-warm/80 hover:bg-surface-warm border border-border-light transition-all"
+        class="absolute bottom-3 right-3 text-xs text-accent hover:text-accent-light font-mono font-medium px-2.5 py-1 rounded bg-surface-warm/80 hover:bg-surface-warm border border-border-light transition-all"
       >
         {t('input.loadSample')}
       </button>
@@ -53,7 +53,7 @@
     <button
       onclick={handleSubmit}
       disabled={!text.trim() || loading}
-      class="px-5 py-2.5 bg-primary text-white font-semibold rounded hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-sm"
+      class="px-5 py-2.5 bg-primary text-white font-mono font-semibold rounded btn-glow hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-sm"
     >
       {#if loading}
         <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

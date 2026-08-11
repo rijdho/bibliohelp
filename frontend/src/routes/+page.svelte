@@ -197,7 +197,7 @@
 
   <!-- Chunked-verification progress -->
   {#if loading && progressTotal > CHUNK_SIZE}
-    <div class="bg-surface-card border border-border rounded p-4 animate-fade-in space-y-2">
+    <div class="bg-surface-card border border-border rounded-lg shadow-card p-4 animate-fade-in space-y-2">
       <div class="flex items-center gap-2.5 text-sm text-text-muted">
         <svg class="w-4 h-4 animate-spin text-accent shrink-0" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -216,7 +216,7 @@
 
   <!-- Error -->
   {#if error}
-    <div class="bg-fake-bg border border-fake/20 rounded p-4 text-sm text-fake animate-fade-in flex items-start gap-2.5">
+    <div class="bg-fake-bg border border-fake/20 rounded-lg p-4 text-sm text-fake animate-fade-in flex items-start gap-2.5">
       <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
       </svg>
@@ -233,7 +233,7 @@
           {#if !addingMore}
             <button
               onclick={() => { addingMore = true; }}
-              class="text-sm text-text-muted hover:text-text font-medium px-3 py-1.5 rounded hover:bg-surface-warm border border-border transition-colors flex items-center gap-1.5"
+              class="text-sm text-text-muted hover:text-text font-mono font-medium px-3 py-1.5 rounded hover:bg-surface-warm border border-border transition-colors flex items-center gap-1.5"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -243,7 +243,7 @@
           {/if}
           <button
             onclick={downloadReport}
-            class="text-sm text-text-muted hover:text-text font-medium px-3 py-1.5 rounded hover:bg-surface-warm border border-border transition-colors flex items-center gap-1.5"
+            class="text-sm text-text-muted hover:text-text font-mono font-medium px-3 py-1.5 rounded hover:bg-surface-warm border border-border transition-colors flex items-center gap-1.5"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -252,7 +252,7 @@
           </button>
           <button
             onclick={reset}
-            class="text-sm text-accent hover:text-accent-light font-medium px-3 py-1.5 rounded hover:bg-accent/5 transition-colors flex items-center gap-1.5"
+            class="text-sm text-accent hover:text-accent-light font-mono font-medium px-3 py-1.5 rounded hover:bg-accent/5 transition-colors flex items-center gap-1.5"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -352,7 +352,7 @@
 
     <!-- Word Add-in section -->
     <div class="border-t border-border-light pt-8 mt-4 animate-fade-in-up" style="animation-delay: 300ms; opacity: 0;">
-      <div class="bg-surface-card rounded border border-border p-6 text-center space-y-4">
+      <div class="bg-surface-card rounded-lg shadow-card border border-border p-6 text-center space-y-4">
         <div class="flex items-center justify-center gap-3">
           <svg class="w-7 h-7 text-[#2b579a]" viewBox="0 0 24 24" fill="currentColor">
             <path d="M15.5 2H8.6c-.4 0-.8.2-.9.5L2.1 9.8c-.2.3-.1.7.1.9l5.6 5.6c.1.1.3.2.5.2h.1l7.1-1.4c.3-.1.5-.3.5-.6V2.5c0-.3-.2-.5-.5-.5zM14 13.1l-5.1 1L4.5 10l4.1-5.5H14v8.6z"/>
@@ -368,7 +368,7 @@
           <a
             href="{appConfig.apiUrl}/api/manifest"
             download="{appConfig.appName.toLowerCase().replace(/\s+/g, '-')}-manifest.xml"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-medium text-white bg-[#2b579a] hover:bg-[#1e3f6f] transition-colors"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-mono font-medium text-white bg-[#2b579a] hover:bg-[#1e3f6f] transition-colors"
           >
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
@@ -384,7 +384,7 @@
         </div>
 
         {#if showInstructions}
-          <div class="text-left bg-surface-warm rounded p-4 text-xs text-text-muted space-y-2 mt-3 animate-slide-down">
+          <div class="text-left bg-surface-warm rounded-lg p-4 text-xs text-text-muted space-y-2 mt-3 animate-slide-down">
             <p class="font-semibold text-text">{t('word.howTitle')}</p>
             <ol class="list-decimal list-inside space-y-1.5">
               <li>{t('word.step1pre')} <code class="bg-border/40 px-1.5 py-0.5 rounded text-text font-mono text-[11px]">manifest.xml</code> {t('word.step1post')}</li>

@@ -77,7 +77,7 @@
 </script>
 
 {#if citations.length > 0}
-  <div class="bg-surface-card border border-border rounded p-4 animate-fade-in">
+  <div class="bg-surface-card border border-border rounded-lg shadow-card p-4 animate-fade-in">
     <!-- Header -->
     <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
       <div>
@@ -91,7 +91,7 @@
           {#each formats as fmt}
             <button
               onclick={() => activeFormat = fmt}
-              class="px-2.5 py-1 text-[11px] font-semibold rounded transition-all duration-150
+              class="px-2.5 py-1 text-[11px] font-mono font-semibold rounded transition-all duration-150
                 {activeFormat === fmt
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text-muted hover:text-text'}"
@@ -104,7 +104,7 @@
         <!-- Copy button -->
         <button
           onclick={copyAll}
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded border transition-all duration-150
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono font-semibold rounded border transition-all duration-150
             {copied
               ? 'bg-verified-bg border-verified/25 text-verified'
               : 'border-border text-text-muted hover:text-text hover:border-accent/30'}"
@@ -125,7 +125,7 @@
         <!-- BibTeX download button -->
         <button
           onclick={downloadBibtex}
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded border transition-all duration-150
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono font-semibold rounded border transition-all duration-150
             border-border text-text-muted hover:text-text hover:border-accent/30"
         >
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@
         <!-- RIS download button -->
         <button
           onclick={downloadRis}
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded border transition-all duration-150
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono font-semibold rounded border transition-all duration-150
             border-border text-text-muted hover:text-text hover:border-accent/30"
         >
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

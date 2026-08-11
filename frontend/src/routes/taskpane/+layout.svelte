@@ -3,7 +3,13 @@
   import '../../app.css';
   import { appConfig } from '$lib/config';
   import { getLang, toggleLang } from '$lib/i18n.svelte';
+  import { onMount } from 'svelte';
   let { children } = $props();
+
+  // Inside Word the pane must not follow the OS color scheme (a dark pane in a
+  // light Word reads as broken) — pin light, which data-theme wins over the
+  // media query.
+  onMount(() => document.documentElement.setAttribute('data-theme', 'light'));
 </script>
 
 <svelte:head>
@@ -18,7 +24,7 @@
     <span class="text-sm font-bold text-text">{appConfig.appName}</span>
     <button
       onclick={toggleLang}
-      class="ml-auto flex items-center gap-1 text-[11px] font-semibold text-text-muted hover:text-text border border-border rounded px-1.5 py-0.5 transition-colors"
+      class="ml-auto flex items-center gap-1 text-[11px] font-mono font-semibold text-text-muted hover:text-text border border-border rounded px-1.5 py-0.5 transition-colors"
       title="Español / English / Deutsch"
       aria-label="Change language"
     >
